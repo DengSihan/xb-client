@@ -22,15 +22,23 @@
 import { ref, shallowRef, computed, onBeforeMount, onBeforeUnmount } from 'vue';
 import axios from '~/plugins/axios.js';
 
-
-const getUnixtimeFromDatetime = (datetime) => {
-    return Math.floor(new Date(datetime).getTime() / 1000);
+// 根据给定的时间戳（比如"09:00:00"）得出对应当日的 Unix 时间戳
+const getUnixtimeFromDatetime = time => {
+    let now = new Date(),
+        today = Math.floor((new Date(now.getFullYear(), now.getMonth(), now.getDate())).getTime() / 1000);
+    return today + parseInt(time.split(':')[0]) * 60 * 60 + parseInt(time.split(':')[1]) * 60;
 };
 
 const playlist = shallowRef([]),
     isPaused = ref(false),
     playCounter = ref(1),
-    currentAudio = ref({});
+    currentAudio = ref({}),
+    currentAudioDuration = ref(0),
+    currentAudioProgress = ref(0),
+    promotionPlayable = ref(false)
+
+let timeChecker = null,
+    playlistUpdater = null;
 
 const backgroundPlaylist = computed(() => {
         return playlist.value.filter(audio => audio.category === 1);
@@ -38,7 +46,7 @@ const backgroundPlaylist = computed(() => {
     fixedPlaylist = computed(() => {
         return playlist.value.filter(audio => audio.category === 2);
     }),
-    promotedPlaylist = computed(() => {
+    promotionPlaylist = computed(() => {
         return playlist.value.filter(audio => audio.category === 3);
     });
 
