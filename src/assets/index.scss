@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'nprogress/nprogress.css';
+@import 'library.scss';
+
+html {
+	@apply bg-slate-50 flex items-center h-screen;
+}
+
+body {
+	@apply h-[600px] w-[420px] border-2 shadow m-auto bg-white rounded; 
+}
+
+#app {
+	@apply relative h-full overflow-hidden;
+}
+
