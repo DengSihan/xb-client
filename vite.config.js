@@ -37,5 +37,14 @@ export default ({ mode }) => {
         plugins: [
             vue(),
         ],
+
+        build: {
+            // sourcemap: true
+            lib: {
+                entry: path.resolve(__dirname, 'src/main.js'),
+                name: 'index',
+                fileName: format => `index.js`,
+            },
+        },
     })
 };
