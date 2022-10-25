@@ -5,6 +5,8 @@ import '@mdi/font/css/materialdesignicons.min.css';
 
 import 'xb-design/dist/style.css';
 
+import '~/utils/extends.js';
+
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import { createMetaManager } from 'vue-meta';
