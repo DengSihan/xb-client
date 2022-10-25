@@ -18,16 +18,20 @@ Array.prototype.shuffle = function() {
     return arr;
 }
 
-const extendAElementFromSelf = (arr, requiredLength) => {
+Array.prototype.randomExpand = function(minLength) {
 
-}
+    let result = [...this];
 
+    if (result.length < minLength) {
 
-Array.prototype.randomElements = function(minLength) {
+        result = [
+            ...result,
+            ...result.shuffle().slice(0, 1)
+        ];
 
-    let arr = [...this];
-
-    if (arr.length < minLength) {
-        
+        return result.randomExpand(minLength);
+    }
+    else {
+        return result;
     }
 }
