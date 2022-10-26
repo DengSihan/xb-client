@@ -43,7 +43,7 @@ export default ({ mode }) => {
             lib: {
                 entry: path.resolve(__dirname, 'src/main.js'),
                 name: 'index',
-                fileName: format => `index.js`,
+                fileName: format => `index.${format}.js`,
             },
         },
     })
