@@ -10,6 +10,7 @@
             :src="audio.url">
     </audio>
     <dialog-for-autoplay-policy
+        @interact="play"
         v-model="preventByAutoplayPolicy"/>
 </template>
 
@@ -145,6 +146,10 @@ const play = () => {
 
         player.value
             .play()
+            .then(() => {
+                // 播放成功
+                preventByAutoplayPolicy.value = false;
+            })
             .catch(() => {
                 preventByAutoplayPolicy.value = true;
             });
