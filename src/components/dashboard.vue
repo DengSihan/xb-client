@@ -220,8 +220,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useAuth } from '~/store/auth.js';
-import Player from '~/components/player.vue';
 import { version } from '../../package.json';
+import Player from '~/components/player/index.vue';
 
 const auth = useAuth();
 

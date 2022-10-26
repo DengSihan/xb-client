@@ -2,7 +2,7 @@
 
     <div
         id="player"
-        class="h-24 px-6 border-t flex items-center justify-between">
+        class="h-24 px-6 border-t flex items-center justify-between relative">
 
         <button
             class="rounded-full btn h-12 w-12 text-white text-2xl shadow flex items-center justify-center"
@@ -59,6 +59,7 @@
     <!-- 非固定播音的播放器 -->
     <audio
         ref="player"
+        :key="currentNonFixedAudio?.url"
         @timeupdate="updateCurrentAudioStatus"
         @ended="finishNonFixedAudio">
         <source
@@ -70,6 +71,7 @@
     <!-- 固定播音的播放器 -->
     <audio
         ref="speaker"
+        :key="currentFixedAudio?.url"
         @timeupdate="updateCurrentAudioStatus"
         @ended="finishFixedAudio">
         <source
@@ -82,7 +84,7 @@
 
 <script setup>
 
-import { ref, shallowRef, computed, onBeforeMount, onMounted, onBeforeUnmount, nextTick, watchEffect } from 'vue';
+import { ref, shallowRef, computed, onBeforeMount, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { getUnixtimeFromDatetime, getCurrentUnixtime, formatSeconds } from '~/utils/time.js';
 import { randomIntFromInterval } from '~/utils/helpers.js';
 import { useAuth } from '~/store/auth.js';
@@ -244,7 +246,7 @@ const refreshCurrentPlaylist = () => {
     seasonalPromoteAudios.forEach(audio => {
         results = [
             ...results,
-            ...backgroundAudios.value.randomExpand(audio.interval).shuffle(),
+            ...backgroundAudios.value.randomExpand(audio.interval).shuffle().slice(0, audio.interval),
             audio,
         ];
     });
@@ -323,7 +325,7 @@ let shouldPlayFixedAudioChecker = null;
 onMounted(() => {
     nextTick(() => {
         shouldPlayFixedAudioChecker = setInterval(() => {
-            let currentUnixtime = getCurrentUnixtime(),
+            let currentUnixtime = getCurrentUnixtime().toString(),
                 fixedAudiosSchedule = getFixedAudiosSchedule();
 
             if (
@@ -371,7 +373,9 @@ const playFixedAudio = audio => {
 
     nextTick(() => {
         setTimeout(() => {
-            speaker.value.play();
+            if (!isPause.value) {
+                speaker.value.play();
+            }
         }, 0);
     });
 }
@@ -391,11 +395,18 @@ const playNonFixedAudio = () => {
     ) {
         nextTick(() => {
             setTimeout(() => {
-                player.value
-                    .play()
-                    .then(() => {
-                        isPause.value = false;
-                    });
+
+                try {
+                    player.value
+                        .play()
+                        .then(() => {
+                            isPause.value = false;
+                        });
+                } catch (e) {
+                    console.log(e);
+                }
+
+                
             }, 0);
         });
     }
@@ -475,11 +486,5 @@ onBeforeMount(() => {
 //      这里计划是 3 分钟，但是为了避免高并发，实际上是一个 3 分钟 - 5 分钟的随机毫秒数
 // shouldPlayFixedAudioChecker: 每 1 秒检查一次当前是否应该播放固定播音
 // audiosHistoryRecorder: 每 10 分钟上传一次播放历史
-
-watchEffect(() => {
-    console.log(
-        'isOpen:' + isOpen.value + '\n'
-    )
-});
 
 </script>
