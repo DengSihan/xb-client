@@ -3,7 +3,8 @@
         ref="player"
         :key="audio?.url"
         @timeupdate="timeupdate"
-        @ended="finish">
+        @ended="finish"
+        @pause="pauseBySystem">
         <source
             v-if="audio.url"
             type="audio/mpeg"
@@ -16,19 +17,31 @@
 
 <script setup>
 
-import { ref, shallowRef, computed, onMounted, onBeforeMount, nextTick } from 'vue';
+import { ref, shallowRef, computed, onMounted, onBeforeMount, nextTick, watch } from 'vue';
 import { getCurrentUnixtime } from '~/utils/time.js';
 import dayjs from 'dayjs';
 import DialogForAutoplayPolicy from '~/components/player/dialog-for-autoplay-policy.vue';
+
+// ---------------计算逻辑，不涉及交互-----------------
 
 const props = defineProps({
     audios: {
         required: true,
         type: Array,
+    },
+    isPlayingFixedAudios: {
+        required: true,
+        type: Boolean,
+    },
+    isOpen: {
+        required: true,
+        type: Boolean,
+    },
+    isPause: {
+        required: true,
+        type: Boolean,
     }
 });
-
-// ---------------计算逻辑，不涉及交互-----------------
 
 const playlist = shallowRef([]);
 
@@ -133,7 +146,8 @@ const player = ref(null),
     preventByAutoplayPolicy = ref(false);
 
 const emits = defineEmits([
-    'statusupdate'
+    'statusupdate',
+    'update:isPause',
 ]);
 
 const timeupdate = ({ target }) => {
@@ -144,18 +158,40 @@ const timeupdate = ({ target }) => {
     });
 };
 
+const pause = () => {
+    player.value.pause();
+};
+
 const play = () => {
     nextTick(() => {
-        player.value
-            .play()
-            .then(() => {
-                preventByAutoplayPolicy.value = false;
-            })
-            .catch(() => {
-                preventByAutoplayPolicy.value = true;
-            });
+        if (
+            props.isOpen
+            && !props.isPlayingFixedAudios
+        ) {
+            player.value
+                .play()
+                .then(() => {
+                    preventByAutoplayPolicy.value = false;
+                })
+                .catch(() => {
+                    preventByAutoplayPolicy.value = true;
+                });
+        }
+        else {
+            pause();
+        }
     });
 }
+
+watch(
+    () => {
+        return props.isOpen
+            && !props.isPlayingFixedAudios
+    },
+    (value) => {
+        value ? play() : pause();
+    }
+)
 
 const finish = () => {
 
@@ -172,27 +208,28 @@ const finish = () => {
     play();
 };
 
-const pause = () => {
-    player.value.pause();
-};
-
 onMounted(() => {
     audio.value = playlist.value[0];
     play();
 });
 
-
 const changeProgressManually = value => {
 	player.value.currentTime = player.value.duration * parseFloat(value);
+}
 
+const pauseBySystem = () => {
+    
+    if (!isPause) {
+        emits('update:isPause', true)
+    }
 }
 
 defineExpose({
     changeProgressManually,
     pause,
     finish,
+    play,
 });
-
 
 </script>
 

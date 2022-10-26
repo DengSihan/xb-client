@@ -4,7 +4,7 @@
         id="player"
         class="h-24 px-6 border-t flex items-center justify-between relative">
 
-        <!-- <button
+        <button
             class="rounded-full btn h-12 w-12 text-white text-2xl shadow flex items-center justify-center"
             :class="{
                 'bg-teal-600 hover:bg-teal-500 hover:scale-[102%] active:scale-[98%] scale-100 transition-[background,transform]': pauseable,
@@ -13,8 +13,8 @@
             type="button"
             @click="
                 isPause
-                    ? playNonFixedAudio()
-                    : pauseNonFixedAudio()
+                    ? playNonFixedAudios()
+                    : pauseNonFixedAudios()
             "
             :disabled="!pauseable"
             v-wave="pauseable">
@@ -24,7 +24,7 @@
                     'mdi-pause': !isPause,
                     'mdi-play': isPause
                 }"></i>
-        </button> -->
+        </button>
 
         <div
             class="w-[calc(100%-theme('space.16'))] relative top-1">
@@ -32,11 +32,11 @@
             <p
                 class="flex mb-0.25 text-sm">
                 <span
-                    class="w-[calc(100%-theme('space.24'))] truncate">
-                    {{ status.name }}
+                    class="w-[calc(100%-theme('space.36'))] truncate">
+                    {{ isOpen ? status.name : '休息中' }}
                 </span>
                 <span
-                    class="w-24 whitespace-nowrap font-mono text-right">
+                    class="w-36 whitespace-nowrap font-mono text-right">
                     {{ status.currentTime }} - {{ status.duration }}
                 </span>
             </p>
@@ -49,7 +49,8 @@
                 max="1"
                 step="0.00001"
                 :value.lazy="status.progress"
-                @change="changeProgressManually">
+                @change="changeProgressManually"
+                :disabled="!pauseable">
 
         </div>
         
@@ -58,12 +59,16 @@
     <non-fixed-audios-player
         v-if="nonFixedAudios.length"
         ref="nonFixedAudiosPlayer"
+        :is-open="isOpen"
+        :is-playing-fixed-audios="isPlayingFixedAudios"
+        v-model:isPause="isPause"
         @statusupdate="statusupdate"
         :audios="nonFixedAudios"/>
 
     <fixed-audios-player
         v-if="fixedAudios.length"
         @statusupdate="statusupdate"
+        v-model:isPlayingFixedAudios="isPlayingFixedAudios"
         ref="fixedAudiosPlayer"
         :audios="fixedAudios"/>
 
@@ -73,11 +78,45 @@
 
 import { shallowRef, ref, computed, onBeforeMount, onBeforeUnmount, nextTick } from 'vue';
 import { randomIntFromInterval } from '~/utils/helpers.js';
-import { formatSeconds } from '~/utils/time.js';
+import { formatSeconds, getCurrentUnixtime, getUnixtimeFromDatetime } from '~/utils/time.js';
 import axios from '~/plugins/axios.js';
+import { useAuth } from '~/store/auth.js';
 
 import FixedAudiosPlayer from '~/components/player/fixed-audios-player.vue';
 import NonFixedAudiosPlayer from '~/components/player/non-fixed-audios-player.vue';
+
+// -------------------- 当前门店信息 -----------------------------
+
+const auth = useAuth();
+
+// 是否处于营业时间
+const isOpen = ref(false);
+
+// 是否营业更新器，用于检查当前是否处于营业时间
+let isOpenUpdater = null;
+
+const refreshIsOpen = () => {
+
+    let currentUnixtime = getCurrentUnixtime(),
+        open_at = auth.store.open_at,
+        close_at = auth.store.close_at;
+
+    isOpen.value = currentUnixtime >= getUnixtimeFromDatetime(open_at)
+        && currentUnixtime <= getUnixtimeFromDatetime(close_at);
+}
+
+onBeforeMount(() => {
+    refreshIsOpen();
+    isOpenUpdater = setInterval(() => {
+        refreshIsOpen();
+    }, 1000);
+});
+
+onBeforeUnmount(() => {
+    if (isOpenUpdater) {
+        clearInterval(isOpenUpdater);
+    }
+});
 
 
 // ------------------原始音频数据，不是播放列表----------------------
@@ -124,6 +163,13 @@ const nonFixedAudios = computed(() => {
 const nonFixedAudiosPlayer = ref(null);
 const fixedAudiosPlayer = ref(null);
 
+const isPause = ref(false);
+const isPlayingFixedAudios = ref(false);
+
+const pauseable = computed(() => {
+    return isOpen.value && !isPlayingFixedAudios.value;
+});
+
 const status = shallowRef({
     name: '',
     progress: 0,
@@ -146,6 +192,24 @@ const statusupdate = ({ currentTime, duration, name }) => {
         currentTime: formatSeconds(currentTime.toFixed(0)),
         duration: formatSeconds(duration.toFixed(0)),
     }
+}
+
+const playNonFixedAudios = () => {
+    nextTick(() => {
+        setTimeout(() => {
+            isPause.value = false;
+            nonFixedAudiosPlayer.value.play();
+        });
+    });
+}
+
+const pauseNonFixedAudios = () => {
+    nextTick(() => {
+        setTimeout(() => {
+            isPause.value = true;
+            nonFixedAudiosPlayer.value.pause();
+        });
+    });
 }
 
 </script>
