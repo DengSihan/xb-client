@@ -83,19 +83,23 @@
 					open>
 					<header
 						class="text-xl font-bold p-6">
-						<i
-							class="mdi mdi-emoticon-dead text-slate-600 mr-2"></i>
-						抱歉，遇到错误
+						<span
+							class="mr-2">
+							😥
+						</span>
+						抱歉，麻烦您点一下
 					</header>
 					<p
 						class="px-6 pb-6">
-						浏览器已禁止自动播放音频，请点击下方按钮，继续播放音频。
+						浏览器已禁止自动播放音频，请点击下方按钮，继续播放音频。使用客户端，可跳过此步骤。
 					</p>
 					<form
 						class="px-6 pb-6 text-sm text-right"
 						@submit.prevent="continuePlay">
 						<xb-button>
 							继续播放
+							<i
+								class="mdi mdi-play-circle ml-2"></i>
 						</xb-button>
 					</form>
 				</dialog>

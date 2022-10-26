@@ -18,6 +18,8 @@ Array.prototype.shuffle = function() {
     return arr;
 }
 
+// 随机扩展数组
+// 如果数组的长度小于希望的长度，那么会从现有 item 里面随机抓取作为新的 item 直至长度达到希望的长度
 Array.prototype.randomExpand = function(minLength) {
 
     let result = [...this];

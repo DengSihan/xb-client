@@ -28,11 +28,6 @@ const props = defineProps({
     }
 });
 
-const emits = defineEmits([
-    'timeupdate'
-]);
-
-
 // ---------------计算逻辑，不涉及交互-----------------
 
 const playlist = shallowRef([]);
@@ -137,17 +132,23 @@ const player = ref(null),
     audio = shallowRef({}),
     preventByAutoplayPolicy = ref(false);
 
+const emits = defineEmits([
+    'statusupdate'
+]);
+
 const timeupdate = ({ target }) => {
-    emits('timeupdate', target);
+    emits('statusupdate', {
+        name: audio.value.name,
+        currentTime: target.currentTime,
+        duration: target.duration,
+    });
 };
 
 const play = () => {
     nextTick(() => {
-
         player.value
             .play()
             .then(() => {
-                // 播放成功
                 preventByAutoplayPolicy.value = false;
             })
             .catch(() => {
@@ -157,7 +158,18 @@ const play = () => {
 }
 
 const finish = () => {
-    
+
+    let currentAudioIndex = playlist.value.findIndex(({ id }) => id === audio.value.id);
+
+    if (currentAudioIndex === playlist.value.length - 1) {
+        playlist.value = getPlaylist();
+        audio.value = playlist.value[0];
+    }
+    else {
+        audio.value = playlist.value[currentAudioIndex + 1];
+    }
+
+    play();
 };
 
 const pause = () => {
@@ -170,9 +182,22 @@ onMounted(() => {
 });
 
 
+const changeProgressManually = value => {
+	player.value.currentTime = player.value.duration * parseFloat(value);
+
+}
+
+defineExpose({
+    changeProgressManually,
+    pause,
+    finish,
+});
 
 
+</script>
 
-
-
+<script>
+export default {
+    inheritAttrs: false,
+}
 </script>
