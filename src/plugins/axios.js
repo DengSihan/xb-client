@@ -5,7 +5,7 @@ import { version } from '../../package.json';
 import { usePlatform } from '~/utils/platform.js';
 import { notify } from '@kyvg/vue3-notification';
 
-axios.defaults.baseURL = `/api`;
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.headers.common['X-Client-Version'] = `v${version}-${usePlatform()}`;
 
 // before sending the request
