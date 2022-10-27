@@ -113,28 +113,16 @@
 
 <script setup>
 
-import { computed } from 'vue';
-
 const props = defineProps({
-    modelValue: {
+    show: {
         type: Boolean,
         required: true,
     }
 });
 
 const emits = defineEmits([
-    'update:modelValue',
 	'interact'
 ]);
-
-const show = computed({
-    get() {
-        return props.modelValue;
-    },
-    set(value) {
-        emits('update:modelValue', value);
-    }
-});
 
 const continuePlay = () => {
 	emits('interact');

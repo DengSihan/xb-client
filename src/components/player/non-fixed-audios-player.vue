@@ -15,7 +15,7 @@
 
 <script setup>
 
-import { onMounted, shallowRef, nextTick } from 'vue';
+import { onMounted, shallowRef, nextTick, ref, watch } from 'vue';
 import { useNonFixedAudios } from '~/composables/player.js';
 
 const props = defineProps({
@@ -23,37 +23,116 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    autoplayPolicy: {
+        type: Object,
+        required: true,
+    },
+    isPause: {
+        type: Boolean,
+        required: true,
+    },
+    isPlayable: {
+        type: Boolean,
+        required: true,
+    }
 });
+
+const emits = defineEmits([
+    'update-status',
+    'update:autoplayPolicy',
+    'update:isPause',
+]);
 
 const playlist = shallowRef([]),
     audio = shallowRef({}),
-    player = ref(null);
+    player = ref(null),
+    currentPlayIndex = ref(0);
 
 const {
     getPlaylist,
 } = useNonFixedAudios(props);
 
-onMounted(() => {
-    playlist.value = getPlaylist();
-    play(playlist.value[0]);
-});
 
-const play = a => {
-    audio.value = a;
+const play = () => {
     nextTick(() => {
-
+        player.value
+            .play()
+            .then(() => {
+                emits('update:isPause', false);
+                emits('update:autoplayPolicy', {
+                    show: false,
+                    play: () => {}
+                });
+            })
+            .catch(() => {
+                emits('update:autoplayPolicy', {
+                    show: true,
+                    play,
+                });
+            });
     })
 };
 
 const pause = () => {
-    // player.value.pause();
+    player.value.pause();
+    emits('update:isPause', true);
 };
 
 const ended = () => {
-    // player.value.pause();
+    if (currentPlayIndex.value === playlist.value.length - 1) {
+        playlist.value = getPlaylist();
+        audio.value = playlist.value[0];
+        currentPlayIndex.value = 0;
+    }
+    else {
+        audio.value = playlist.value[currentPlayIndex.value + 1];
+        currentPlayIndex.value ++;
+    }
+
+    play();
 };
 
-const timeupdate = () => {
-    // player.value.pause();
+const timeupdate = ({ target }) => {
+    emits('update-status', {
+        name: audio.value.name,
+        currentTime: target.currentTime,
+        duration: target.duration,
+    });
 };
+
+const changeProgressManually = value => {
+	player.value.currentTime = player.value.duration * parseFloat(value);
+}
+
+// 由系统暂停，而非点击页面中的暂停按钮：比如点击 ubuntu 通知栏中的暂停
+const pauseBySystem = () => {
+    if (!props.isPause) {
+        emits('update:isPause', true);
+    }
+}
+const playBySystem = () => {
+    if (props.isPause) {
+        emits('update:isPause', false);
+    }
+}
+
+watch(
+    () => props.isPlayable,
+    value => {
+        value ? play() : pause();      
+    }
+);
+
+defineExpose({
+    changeProgressManually,
+    pause,
+    play,
+});
+
+onMounted(() => {
+    playlist.value = getPlaylist();
+    audio.value = playlist.value[0];
+    play();
+});
+
 </script>

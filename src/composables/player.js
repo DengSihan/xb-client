@@ -1,6 +1,6 @@
 import { ref, shallowRef, computed, onBeforeMount, onBeforeUnmount, watchEffect } from 'vue';
 import { useAuth } from '~/store/auth.js';
-import { getCurrentUnixtime, getUnixtimeFromDatetime } from '~/utils/time.js';
+import { getCurrentUnixtime, getUnixtimeFromDatetime, formatSeconds } from '~/utils/time.js';
 import { randomIntFromInterval } from '~/utils/helpers.js';
 import axios from '~/plugins/axios.js';
 import dayjs from 'dayjs';
@@ -89,19 +89,6 @@ export const useAudio = () => {
     };
 }
 
-// 播放器
-export const usePlayer = () => {
-
-    // 用于显示播放状态（总时长、进度、当前时间，当前播放曲目）
-    const updateStatus = () => {
-
-    }
-
-    return {
-        updateStatus,
-    }
-}
-
 // 非固定音频计算逻辑
 export const useNonFixedAudios = props => {
 
@@ -172,8 +159,9 @@ export const useNonFixedAudios = props => {
             ) {
                 return true;
             }
+            // 既没有 promote_start_date 又没有 promote_end_date
             else {
-                return false;
+                return true;
             }
         });
 
@@ -200,3 +188,29 @@ export const useNonFixedAudios = props => {
     };
 }
 
+
+export const useStatus = () => {
+
+    // 更新显示
+    const status = ref({
+        name: '加载中...',
+        progress: 0,
+        currentTime: '00:00',
+        duration: '00:00',
+    });
+
+    // 类似浏览器 audio 原生事件 timeupdate，只用于状态字段的更新
+    const updateStatus = ({ currentTime, duration, name }) => {
+        status.value = {
+            name,
+            progress: (currentTime / duration).toFixed(2),
+            currentTime: formatSeconds(currentTime.toFixed(0)),
+            duration: formatSeconds(duration.toFixed(0)),
+        }
+    }
+
+    return {
+        status,
+        updateStatus,
+    };
+}
