@@ -1,10 +1,11 @@
 <template>
     <audio
         ref="player"
-        :key="audio?.url"
+        :key="audio.url"
         @timeupdate="timeupdate"
-        @ended="finish"
-        @pause="pauseBySystem">
+        @ended="ended"
+        @pause="pauseBySystem"
+        @play="playBySystem">
         <source
             v-if="audio.url"
             type="audio/mpeg"
@@ -40,7 +41,7 @@ const props = defineProps({
     isPause: {
         required: true,
         type: Boolean,
-    }
+    },
 });
 
 const playlist = shallowRef([]);
@@ -141,15 +142,17 @@ onBeforeMount(() => {
 
 // --------------------- 播放逻辑 ---------------------
 
-const player = ref(null),
-    audio = shallowRef({}),
-    preventByAutoplayPolicy = ref(false);
+const player = ref(null), // this.$refs.audio DOM 对象
+    audio = ref({}), // 正在播放的音频
+    preventByAutoplayPolicy = ref(false), // 是否被浏览器自动播放策略阻止自动播放
+    currentPlayIndex = ref(0);
 
 const emits = defineEmits([
     'statusupdate',
     'update:isPause',
 ]);
 
+// 更新用户显示
 const timeupdate = ({ target }) => {
     emits('statusupdate', {
         name: audio.value.name,
@@ -161,6 +164,18 @@ const timeupdate = ({ target }) => {
 const pause = () => {
     player.value.pause();
 };
+
+// 由系统暂停，而非点击暂停按钮：比如点击 ubuntu 通知栏中的暂停
+const pauseBySystem = () => {
+    if (!props.isPause) {
+        emits('update:isPause', true);
+    }
+}
+const playBySystem = () => {
+    if (props.isPause) {
+        emits('update:isPause', false);
+    }
+}
 
 const play = () => {
     nextTick(() => {
@@ -177,36 +192,50 @@ const play = () => {
                     preventByAutoplayPolicy.value = true;
                 });
         }
-        else {
-            pause();
-        }
     });
 }
 
-watch(
-    () => {
-        return props.isOpen
-            && !props.isPlayingFixedAudios
-    },
-    (value) => {
-        value ? play() : pause();
-    }
-)
+const ended = () => {
 
-const finish = () => {
-
-    let currentAudioIndex = playlist.value.findIndex(({ id }) => id === audio.value.id);
-
-    if (currentAudioIndex === playlist.value.length - 1) {
+    if (currentPlayIndex.value === playlist.value.length - 1) {
         playlist.value = getPlaylist();
         audio.value = playlist.value[0];
+        currentPlayIndex.value = 0;
     }
     else {
-        audio.value = playlist.value[currentAudioIndex + 1];
+        audio.value = playlist.value[currentPlayIndex.value + 1];
+        currentPlayIndex.value ++;
     }
 
     play();
 };
+
+watch(
+    () => {
+        return props.isOpen;
+    },
+    value => {
+        value ? play() : pause();
+    }
+);
+
+watch(
+    () => {
+        return props.isPlayingFixedAudios;
+    },
+    value => {
+        value ? pause() : play();
+    }
+);
+
+watch(
+    () => {
+        return props.isPause;
+    },
+    value => {
+        value ? pause() : play();
+    }
+);
 
 onMounted(() => {
     audio.value = playlist.value[0];
@@ -217,17 +246,9 @@ const changeProgressManually = value => {
 	player.value.currentTime = player.value.duration * parseFloat(value);
 }
 
-const pauseBySystem = () => {
-    
-    if (!isPause) {
-        emits('update:isPause', true)
-    }
-}
-
 defineExpose({
     changeProgressManually,
     pause,
-    finish,
     play,
 });
 
