@@ -64,9 +64,17 @@
         :is-playable="nonFixedAudiosPlayable"
         @update-status="updateStatus"/>
 
+    <fixed-audios-player
+        v-if="fixedAudios.length"
+        ref="fixedAudiosPlayer"
+        v-model:autoplayPolicy="autoplayPolicy"
+        v-model:isPlayingFixedAudios="isPlayingFixedAudios"
+        :audios="fixedAudios"
+        @update-status="updateStatus"/>
+
     <dialog-for-autoplay-policy
         :show="autoplayPolicy.show"
-        @interact="autoplayPolicy.play"/>
+        @interact="autoplayPolicy.play()"/>
 
 </template>
 
@@ -77,6 +85,7 @@ import { useIsOpen, useAudio, useStatus } from '~/composables/player.js';
 
 import DialogForAutoplayPolicy from '~/components/player/dialog-for-autoplay-policy.vue';
 import NonFixedAudiosPlayer from '~/components/player/non-fixed-audios-player.vue';
+import FixedAudiosPlayer from '~/components/player/fixed-audios-player.vue';
 
 const isPause = ref(false),
     isPlayingFixedAudios = ref(false);

@@ -188,6 +188,40 @@ export const useNonFixedAudios = props => {
     };
 }
 
+// 固定播音的计算逻辑
+export const useFixedAudios = props => {
+
+    const getSchedule = () => {
+
+        let result = {};
+
+        props.audios.forEach(audio => {
+
+            let {
+                between, // 播放间隔（分钟）
+                play_at, // 开始播放时间
+                count, // 要播放的次数
+                duration, // 音频的实际时长（秒）
+            } = audio;
+
+            count = 100000
+
+            let realBetween = Math.max(between * 60, duration) / 60;
+
+            for (let i = 0; i < count; i++) {
+                let timestamp = getUnixtimeFromDatetime(play_at) + i * realBetween;
+                result[timestamp] = audio;
+            }
+        });
+
+        return result;
+    }
+
+    return {
+        getSchedule,
+    }
+}
+
 
 export const useStatus = () => {
 

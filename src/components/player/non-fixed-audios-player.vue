@@ -54,23 +54,32 @@ const {
 
 
 const play = () => {
-    nextTick(() => {
-        player.value
-            .play()
-            .then(() => {
-                emits('update:isPause', false);
-                emits('update:autoplayPolicy', {
-                    show: false,
-                    play: () => {}
+    if (props.isPlayable) {
+        nextTick(() => {
+            player.value
+                .play()
+                .then(() => {
+                    emits('update:isPause', false);
+                    emits('update:autoplayPolicy', {
+                        show: false,
+                        play: () => {}
+                    });
+                })
+                .catch(() => {
+
+                    console.log('trigger by non-fixed player');
+
+                    emits('update:autoplayPolicy', {
+                        show: true,
+                        play: () => {
+
+                            console.log('try to replay by non-fixed player');
+                            play();
+                        },
+                    });
                 });
-            })
-            .catch(() => {
-                emits('update:autoplayPolicy', {
-                    show: true,
-                    play,
-                });
-            });
-    })
+        });
+    }
 };
 
 const pause = () => {
