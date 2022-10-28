@@ -66,18 +66,19 @@ const play = () => {
                     });
                 })
                 .catch(() => {
-
-                    console.log('trigger by non-fixed player');
-
                     emits('update:autoplayPolicy', {
                         show: true,
                         play: () => {
-
-                            console.log('try to replay by non-fixed player');
                             play();
                         },
                     });
                 });
+        });
+    }
+    else {
+        emits('update:autoplayPolicy', {
+            show: false,
+            play: () => {}
         });
     }
 };
@@ -97,7 +98,6 @@ const ended = () => {
         audio.value = playlist.value[currentPlayIndex.value + 1];
         currentPlayIndex.value ++;
     }
-
     play();
 };
 

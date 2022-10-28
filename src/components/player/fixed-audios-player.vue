@@ -3,9 +3,7 @@
         ref="player"
         :key="audio?.url"
         @timeupdate="timeupdate"
-        @ended="ended"
-        @pause="pauseBySystem"
-        @play="playBySystem">
+        @ended="ended">
         <source
             v-if="audio.url"
             type="audio/mpeg"
@@ -16,7 +14,7 @@
 
 <script setup>
 
-import { onMounted, onBeforeUnmount ,nextTick, ref, watch } from 'vue';
+import { onMounted, onBeforeUnmount ,nextTick, ref } from 'vue';
 import { getCurrentUnixtime } from '~/utils/time.js';
 import { useFixedAudios } from '~/composables/player.js';
 
@@ -49,14 +47,6 @@ const timeupdate = ({ target }) => {
     });
 };
 
-// 由系统暂停，而非点击页面中的暂停按钮：比如点击 ubuntu 通知栏中的暂停
-const pauseBySystem = e => {
-    play();
-}
-const playBySystem = e => {
-    e.preventDefault();
-}
-
 const {
     getSchedule,
 } = useFixedAudios(props);
@@ -65,34 +55,32 @@ const player = ref(null), // this.$refs.audio DOM 对象
     audio = ref({}); // 正在播放的音频
 
 const play = () => {
-    emits('update:isPlayingFixedAudios', true);
     nextTick(() => {
-        if (
-            !props.isPlayingFixedAudios
-        ) {
-            player.value
-                .play()
-                .then(() => {
-                    emits('update:autoplayPolicy', {
-                        show: false,
-                        play: () => {}
-                    });
-                })
-                .catch(() => {
-
-                    console.log('trigger by fixed player');
-
-                    emits('update:autoplayPolicy', {
-                        show: true,
-                        play,
-                    });
+        emits('update:isPlayingFixedAudios', true);
+        player.value
+            .play()
+            .then(() => {
+                emits('update:autoplayPolicy', {
+                    show: false,
+                    play: () => {}
                 });
-        }
+            })
+            .catch(() => {
+                emits('update:autoplayPolicy', {
+                    show: true,
+                    play,
+                });
+            });
     });
 };
 
 const ended = () => {
     emits('update:isPlayingFixedAudios', false);
+    emits('update-status', {
+        name: '',
+        currentTime: 0,
+        duration: 0,
+    });
 };
 
 // 轮询检查当前是否应该播放固定播音
@@ -103,17 +91,19 @@ onMounted(() => {
         shouldPlayFixedAudioChecker = setInterval(() => {
 
             let currentUnixtime = getCurrentUnixtime().toString(),
-                sudiosSchedule = getSchedule();
+                audiosSchedule = getSchedule(props.audios);
+
+            console.log(Math.abs(Object.keys(audiosSchedule)[0] - currentUnixtime) % 60);
 
             if (
-                Object.keys(sudiosSchedule).includes(currentUnixtime)
+                Object.keys(audiosSchedule).includes(currentUnixtime)
                 && !props.isPlayingFixedAudio
             ) {
-                audio.value = sudiosSchedule[currentUnixtime];
+                audio.value = audiosSchedule[currentUnixtime];
                 play();
             }
 
-        }, 1000)
+        }, 1000);
     });
 });
 

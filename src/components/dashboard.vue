@@ -14,7 +14,8 @@
 <template>
 
     <header
-        class="h-16 p-2 flex justify-between">
+        id="app-header"
+        class="h-16 p-2 flex justify-between bg-slate-50/50">
 
         <button
             @click="activeSidebar = !activeSidebar"

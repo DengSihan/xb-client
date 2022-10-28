@@ -189,13 +189,13 @@ export const useNonFixedAudios = props => {
 }
 
 // 固定播音的计算逻辑
-export const useFixedAudios = props => {
+export const useFixedAudios = () => {
 
-    const getSchedule = () => {
+    const getSchedule = audios => {
 
         let result = {};
 
-        props.audios.forEach(audio => {
+        audios.forEach(audio => {
 
             let {
                 between, // 播放间隔（分钟）
@@ -204,9 +204,7 @@ export const useFixedAudios = props => {
                 duration, // 音频的实际时长（秒）
             } = audio;
 
-            count = 100000
-
-            let realBetween = Math.max(between * 60, duration) / 60;
+            let realBetween = Math.max(between * 60, duration);
 
             for (let i = 0; i < count; i++) {
                 let timestamp = getUnixtimeFromDatetime(play_at) + i * realBetween;
@@ -235,11 +233,21 @@ export const useStatus = () => {
 
     // 类似浏览器 audio 原生事件 timeupdate，只用于状态字段的更新
     const updateStatus = ({ currentTime, duration, name }) => {
-        status.value = {
-            name,
-            progress: (currentTime / duration).toFixed(2),
-            currentTime: formatSeconds(currentTime.toFixed(0)),
-            duration: formatSeconds(duration.toFixed(0)),
+        if (currentTime === 0 || duration === 0) { 
+            status.value = {
+                name,
+                progress: 0,
+                currentTime: '00:00',
+                duration: '00:00',
+            };
+        }
+        else {
+            status.value = {
+                name,
+                progress: (currentTime / duration).toFixed(2),
+                currentTime: formatSeconds(currentTime.toFixed(0)),
+                duration: formatSeconds(duration.toFixed(0)),
+            }
         }
     }
 

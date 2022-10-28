@@ -1,4 +1,5 @@
 <template>
+
      <div
         id="player"
         class="h-24 px-6 border-t flex items-center justify-between relative">
@@ -32,7 +33,11 @@
                 class="flex mb-0.25 text-sm">
                 <span
                     class="w-[calc(100%-theme('space.36'))] truncate">
-                    {{ isOpen ? status.name : '休息中' }}
+                    {{ 
+                        isPlayingFixedAudios
+                            ? status?.name
+                            : (isOpen ? status.name : '休息中')
+                    }}
                 </span>
                 <span
                     class="w-36 whitespace-nowrap font-mono text-right">
