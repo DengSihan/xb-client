@@ -31,6 +31,10 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
+    isPauseByUser: {
+        type: Boolean,
+        required: true,
+    },
     isPlayable: {
         type: Boolean,
         required: true,
@@ -41,6 +45,7 @@ const emits = defineEmits([
     'update-status',
     'update:autoplayPolicy',
     'update:isPause',
+    'update:isPauseByUser',
 ]);
 
 const playlist = shallowRef([]),
@@ -54,7 +59,10 @@ const {
 
 
 const play = () => {
-    if (props.isPlayable) {
+    if (
+        props.isPlayable
+        && !props.isPauseByUser
+    ) {
         nextTick(() => {
             player.value
                 .play()
@@ -129,6 +137,14 @@ watch(
     () => props.isPlayable,
     value => {
         value ? play() : pause();      
+    }
+);
+
+watch(
+    () => props.isPauseByUser,
+    value => {
+        console.log('isPauseByUser', value);
+        value ? pause() : setTimeout(play);
     }
 );
 

@@ -13,17 +13,44 @@
 
 <template>
 
+    <div
+        v-if="platform === 'app'"
+        id="electron-header"
+        class="h-8 bg-slate-900 text-slate-100 rounded-t flex">
+        <div
+            id="electron-header-drag"
+            class="cursor-pointer w-[calc(100%-theme('space.20'))] h-full block">
+        </div>
+        <div
+            class="w-20">
+            <button
+                type="button"
+                class="h-8 w-8 mr-2"
+                @click="minElectron">
+                <i
+                    class="mdi mdi-minus"></i>
+            </button>
+            <button
+                type="button"
+                class="h-8 w-8"
+                @click="closeElectron">
+                <i
+                    class="mdi mdi-close"></i>
+            </button>
+        </div>
+    </div>
+
     <header
         id="app-header"
-        class="h-16 p-2 flex justify-between bg-slate-50/50">
+        class="h-16 p-4 flex justify-between">
 
         <button
             @click="activeSidebar = !activeSidebar"
             type="button"
-            class="w-12 h-12 rounded scale-100 hover:scale-[102%] active:scale-[98%]"
+            class="w-10 h-10 rounded scale-100 hover:scale-[102%] active:scale-[98%]"
             v-wave>
             <i
-                class="mdi mdi-menu text-2xl"></i>
+                class="mdi mdi-menu text-xl"></i>
         </button>
 
         
@@ -193,8 +220,8 @@
         class="px-6 overflow-y-auto"
         :class="[
             authed
-                ? `h-[calc(100%-theme('space.52'))]`
-                : `h-[calc(100%-theme('space.28'))]`
+                ? (platform === 'app' ? `h-[calc(100%-theme('space.60'))]` : `h-[calc(100%-theme('space.52'))]`)
+                : (platform === 'app' ? `h-[calc(100%-theme('space.36'))]` : `h-[calc(100%-theme('space.28'))]`)
         ]">
 		<router-view/>
 	</main>
@@ -222,9 +249,11 @@
 import { ref, computed } from 'vue';
 import { useAuth } from '~/store/auth.js';
 import { version } from '../../package.json';
+import { usePlatform } from '~/utils/platform.js';
 import Player from '~/components/player/index.vue';
 
 const auth = useAuth();
+const platform = usePlatform();
 
 const authed = computed(() => Object.keys(auth.store).length > 0);
 
@@ -236,6 +265,24 @@ const nav = (navigate) => {
     activeSidebar.value = false;
     navigate();
 };
+
+
+if (platform === 'app') {
+    const { ipcRenderer } = require('electron');
+    window.ipcRenderer = ipcRenderer;
+}
+
+const minElectron = () => {
+    console.log('min');
+    window.ipcRenderer.send('minimize-app');
+}
+
+const closeElectron = () => {
+    if (confirm(`确认退出？`)) {
+        window.ipcRenderer.send('close-app');
+    }
+}
+
 </script>
 
 <script>

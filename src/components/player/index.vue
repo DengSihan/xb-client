@@ -13,8 +13,8 @@
             type="button"
             @click="
                 isPause
-                    ? playNonFixedAudios()
-                    : pauseNonFixedAudios()
+                    ? isPauseByUser = false
+                    : isPauseByUser = true;
             "
             :disabled="!isPauseable"
             v-wave="isPauseable">
@@ -64,6 +64,7 @@
         v-if="nonFixedAudios.length"
         ref="nonFixedAudiosPlayer"
         v-model:isPause="isPause"
+        v-model:isPauseByUser="isPauseByUser"
         v-model:autoplayPolicy="autoplayPolicy"
         :audios="nonFixedAudios"
         :is-playable="nonFixedAudiosPlayable"
@@ -93,7 +94,8 @@ import NonFixedAudiosPlayer from '~/components/player/non-fixed-audios-player.vu
 import FixedAudiosPlayer from '~/components/player/fixed-audios-player.vue';
 
 const isPause = ref(false),
-    isPlayingFixedAudios = ref(false);
+    isPlayingFixedAudios = ref(false),
+    isPauseByUser = ref(false);
 
 // 是否处于营业时间
 const isOpen = useIsOpen();

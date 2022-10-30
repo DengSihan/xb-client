@@ -6,14 +6,18 @@
 @import 'library.scss';
 
 html {
-	@apply flex items-center h-screen;
+	@apply flex items-center h-screen bg-slate-100 rounded overflow-hidden;
 }
 
 body {
-	@apply h-[600px] w-[420px] border-2 shadow m-auto bg-white rounded; 
+	@apply h-[600px] w-[420px] shadow-lg m-auto bg-white rounded; 
 }
 
 #app {
-	@apply relative h-full overflow-hidden;
+	@apply relative h-full overflow-hidden rounded;
+}
+
+#electron-header-drag {
+	-webkit-app-region: drag;
 }
 

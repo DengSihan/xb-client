@@ -93,8 +93,6 @@ onMounted(() => {
             let currentUnixtime = getCurrentUnixtime().toString(),
                 audiosSchedule = getSchedule(props.audios);
 
-            console.log(Math.abs(Object.keys(audiosSchedule)[0] - currentUnixtime) % 60);
-
             if (
                 Object.keys(audiosSchedule).includes(currentUnixtime)
                 && !props.isPlayingFixedAudio
