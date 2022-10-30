@@ -6,15 +6,15 @@
 @import 'library.scss';
 
 html {
-	@apply flex items-center h-screen bg-slate-100 rounded overflow-hidden;
+	@apply flex items-center h-screen bg-transparent rounded overflow-hidden;
 }
 
 body {
-	@apply h-[600px] w-[420px] shadow-lg m-auto bg-white rounded; 
+	@apply h-[600px] w-[420px] shadow-lg m-auto bg-slate-100 rounded; 
 }
 
 #app {
-	@apply relative h-full overflow-hidden rounded;
+	@apply relative h-full overflow-hidden rounded bg-white;
 }
 
 #electron-header-drag {

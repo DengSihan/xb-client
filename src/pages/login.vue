@@ -1,6 +1,6 @@
 <template>
 	<form
-		class="my-16"
+		class="mt-4"
 		@submit.prevent="login">
 
 		<xb-input
@@ -49,7 +49,7 @@ import { useRouter } from 'vue-router';
 
 
 useMeta({
-	title: '登录 - 广播云',
+	title: '登录',
 });
 
 const router = useRouter();

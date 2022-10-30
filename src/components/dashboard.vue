@@ -17,10 +17,18 @@
         v-if="platform === 'app'"
         id="electron-header"
         class="h-8 bg-slate-900 text-slate-100 rounded-t flex">
-        <div
+        <p
             id="electron-header-drag"
-            class="cursor-pointer w-[calc(100%-theme('space.20'))] h-full block">
-        </div>
+            class="cursor-pointer w-[calc(100%-theme('space.20'))] h-full text-xs leading-8 px-4 truncate flex items-center">
+            <img
+                class="w-4 h-4 mr-2"
+                src="/logo-xs.png">
+            {{
+				metadata?.titleTemplate
+					? metadata.titleTemplate.replace('%s', metadata.title)
+					: metadata.title
+			}}
+        </p>
         <div
             class="w-20">
             <button
@@ -163,6 +171,27 @@
                         门店信息
                     </a>
                 </router-link>
+                <router-link
+                    :to="{
+                        name: 'settings'
+                    }"
+                    custom
+                    v-slot="{ isActive, href, navigate, route }">
+                    <a
+                        class="block p-3 mb-2 rounded"
+                        :href="href"
+                        :class="[
+                            (isActive || $route.path.startsWith(route.fullPath) )
+                                ? 'bg-slate-200 text-slate-900'
+                                : 'bg-slate-50 hover:bg-slate-200 text-slate-700'
+                        ]"
+                        @click.prevent="nav(navigate)"
+                        v-wave>
+                        <i
+                            class="mdi mdi-cog mr-2"></i>
+                        设置
+                    </a>
+                </router-link>
             </template>
 
         </nav>
@@ -250,7 +279,10 @@ import { ref, computed } from 'vue';
 import { useAuth } from '~/store/auth.js';
 import { version } from '../../package.json';
 import { usePlatform } from '~/utils/platform.js';
+import { useActiveMeta } from 'vue-meta';
 import Player from '~/components/player/index.vue';
+
+const metadata = useActiveMeta();
 
 const auth = useAuth();
 const platform = usePlatform();
@@ -265,7 +297,6 @@ const nav = (navigate) => {
     activeSidebar.value = false;
     navigate();
 };
-
 
 if (platform === 'app') {
     const { ipcRenderer } = require('electron');

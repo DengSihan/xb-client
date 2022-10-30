@@ -16,4 +16,10 @@
 <script setup>
 import NotificationsWrapper from '~/components/notifications-wrapper.vue';
 import Dashboard from '~/components/dashboard.vue';
+
+import { useMeta } from 'vue-meta';
+
+useMeta({
+	titleTemplate: '%s - 广播云',
+})
 </script>

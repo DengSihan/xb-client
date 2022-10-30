@@ -18,6 +18,11 @@
 import { useAuth } from '~/store/auth.js';
 import { useRouter } from 'vue-router';
 import { notify } from '@kyvg/vue3-notification';
+import { useMeta } from 'vue-meta';
+
+useMeta({
+	title: '退出登录',
+});
 
 const auth = useAuth(),
     router = useRouter();

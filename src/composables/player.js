@@ -221,34 +221,48 @@ export const useFixedAudios = () => {
 }
 
 
-export const useStatus = () => {
+export const useStatus = (isPlayingFixedAudios) => {
 
     // 更新显示
-    const status = ref({
+    const nonFixedAudiosStatus = ref({
+        name: '加载中...',
+        progress: 0,
+        currentTime: '00:00',
+        duration: '00:00',
+    });
+    const fixedAudiosStatus = ref({
         name: '加载中...',
         progress: 0,
         currentTime: '00:00',
         duration: '00:00',
     });
 
+    const status = computed(() => {
+        return isPlayingFixedAudios.value ? fixedAudiosStatus.value : nonFixedAudiosStatus.value;
+    });
+
     // 类似浏览器 audio 原生事件 timeupdate，只用于状态字段的更新
     const updateStatus = ({ currentTime, duration, name }) => {
-        if (currentTime === 0 || duration === 0) { 
-            status.value = {
-                name,
-                progress: 0,
-                currentTime: '00:00',
-                duration: '00:00',
-            };
-        }
-        else {
-            status.value = {
+
+        let result = {
+            name,
+            progress: 0,
+            currentTime: '00:00',
+            duration: '00:00',
+        };
+
+        if (currentTime !== 0 && duration !== 0) {
+            result = {
                 name,
                 progress: (currentTime / duration).toFixed(2),
                 currentTime: formatSeconds(currentTime.toFixed(0)),
                 duration: formatSeconds(duration.toFixed(0)),
             }
         }
+
+        isPlayingFixedAudios.value
+            ? fixedAudiosStatus.value = result
+            : nonFixedAudiosStatus.value = result;
     }
 
     return {

@@ -114,7 +114,7 @@ const {
 const {
     status,
     updateStatus
-} = useStatus();
+} = useStatus(isPlayingFixedAudios);
 
 // 浏览器禁止自动播放
 const autoplayPolicy = ref({

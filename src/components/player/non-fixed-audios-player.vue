@@ -15,8 +15,12 @@
 
 <script setup>
 
-import { onMounted, shallowRef, nextTick, ref, watch } from 'vue';
+import { onMounted, shallowRef, nextTick, ref, watch, computed, watchEffect } from 'vue';
 import { useNonFixedAudios } from '~/composables/player.js';
+import { useSettings } from '~/store/settings.js';
+
+const { settings } = useSettings();
+const volume = computed(() => settings.nonfixed_audios_volume);
 
 const props = defineProps({
     audios: {
@@ -143,8 +147,26 @@ watch(
 watch(
     () => props.isPauseByUser,
     value => {
-        console.log('isPauseByUser', value);
         value ? pause() : setTimeout(play);
+    }
+);
+
+watch(
+    () => settings.nonfixed_audios_volume,
+    value => {
+        console.log('volume', value);
+        player.value.volume = value;
+    }
+);
+
+watchEffect(
+    () => {
+
+        console.log(settings.nonfixed_audios_volume);
+
+        player.value
+            ? player.value.volume = volume.value
+            : null;
     }
 );
 
