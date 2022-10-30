@@ -76,7 +76,7 @@ useMeta({
     title: '设置',
 });
 
-const settingsStore = useSettings();
+const settings = useSettings();
 
 const {
     loading,
@@ -85,7 +85,7 @@ const {
     handleFormErrors,
     clearFormErrors,
 } = useForm({
-    ...settingsStore.settings
+    ...settings.settings
 });
 
 const updateSettings = () => {
@@ -93,7 +93,7 @@ const updateSettings = () => {
 
     axios.put(`/settings`, form.value)
         .then(({ data }) => {
-            settingsStore.setSettings(data);
+            settings.update(data);
             clearFormErrors();
             notify({
                 title: '设置已保存',

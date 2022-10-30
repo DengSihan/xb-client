@@ -14,14 +14,10 @@
 
 <script setup>
 
-import { onMounted, onBeforeUnmount ,nextTick, ref, computed, watch } from 'vue';
+import { onMounted, onBeforeUnmount ,nextTick, ref, computed, watchPostEffect } from 'vue';
 import { getCurrentUnixtime } from '~/utils/time.js';
 import { useFixedAudios } from '~/composables/player.js';
 import { useSettings } from '~/store/settings.js';
-
-const settings = useSettings();
-const volume = computed(() => settings.fixed_audios_volume);
-
 
 const props = defineProps({
     audios: {
@@ -116,10 +112,12 @@ onBeforeUnmount(() => {
     }
 });
 
-watch(
-    () => volume,
-    value => {
-        player.value.volume = value;
+const settingsStore = useSettings();
+const volume = computed(() => settingsStore.settings.nonfixed_audios_volume);
+
+watchPostEffect(
+    () => {
+        player.value.volume = volume.value;
     }
 );
 

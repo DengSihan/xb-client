@@ -15,12 +15,9 @@
 
 <script setup>
 
-import { onMounted, shallowRef, nextTick, ref, watch, computed, watchEffect } from 'vue';
+import { onMounted, shallowRef, nextTick, ref, watch, computed, watchPostEffect } from 'vue';
 import { useNonFixedAudios } from '~/composables/player.js';
 import { useSettings } from '~/store/settings.js';
-
-const { settings } = useSettings();
-const volume = computed(() => settings.nonfixed_audios_volume);
 
 const props = defineProps({
     audios: {
@@ -151,22 +148,12 @@ watch(
     }
 );
 
-watch(
-    () => settings.nonfixed_audios_volume,
-    value => {
-        console.log('volume', value);
-        player.value.volume = value;
-    }
-);
+const settingsStore = useSettings();
+const volume = computed(() => settingsStore.settings.nonfixed_audios_volume);
 
-watchEffect(
+watchPostEffect(
     () => {
-
-        console.log(settings.nonfixed_audios_volume);
-
-        player.value
-            ? player.value.volume = volume.value
-            : null;
+        player.value.volume = volume.value;
     }
 );
 
