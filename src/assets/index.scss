@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 html {
-	@apply flex items-center h-screen bg-transparent overflow-hidden;
+	@apply flex items-center h-screen bg-transparent overflow-hidden font-normal;
 }
 
 body {

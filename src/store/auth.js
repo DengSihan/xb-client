@@ -59,5 +59,8 @@ export const useAuth = defineStore('auth', {
 		updateSettings(settings) {
 			this._store.settings = settings;
 		},
+		updateStore(store) {
+			this._store = store;
+		}
 	},
 });

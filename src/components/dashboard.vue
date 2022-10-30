@@ -19,7 +19,7 @@
         class="h-8 bg-slate-900 text-slate-100 flex">
         <p
             id="electron-header-drag"
-            class="cursor-pointer w-[calc(100%-theme('space.20'))] h-full text-xs leading-8 px-2 truncate flex items-center">
+            class="cursor-pointer w-[calc(100%-7.5rem)] h-full text-xs leading-8 px-2 truncate flex items-center">
             <img
                 class="w-4 h-4 mr-2"
                 src="/logo-xs.png">
@@ -30,7 +30,22 @@
 			}}
         </p>
         <div
-            class="w-20">
+            class="w-[7.5rem]">
+            <button
+                type="button"
+                class="h-8 w-10"
+                :class="{
+                    'hover:bg-slate-700': !isTop,
+                    'bg-slate-700': isTop,
+                }"
+                @click="toggleTop">
+                <i
+                    class="mdi"
+                    :class="{
+                        'mdi-pin-outline': !isTop,
+                        'mdi-pin': isTop,
+                    }"></i>
+            </button>
             <button
                 type="button"
                 class="h-8 w-10 hover:bg-slate-700"
@@ -319,6 +334,12 @@ const closeElectron = () => {
     if (confirm(`确认退出？`)) {
         window.ipcRenderer.send('close-app');
     }
+}
+
+const isTop = ref(false);
+const toggleTop = () => {
+    isTop.value = !isTop.value;
+    window.ipcRenderer.send('toggle-top');
 }
 
 </script>
