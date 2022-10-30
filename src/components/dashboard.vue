@@ -16,10 +16,10 @@
     <div
         v-if="platform === 'app'"
         id="electron-header"
-        class="h-8 bg-slate-900 text-slate-100 rounded-t flex">
+        class="h-8 bg-slate-900 text-slate-100 flex">
         <p
             id="electron-header-drag"
-            class="cursor-pointer w-[calc(100%-theme('space.20'))] h-full text-xs leading-8 px-4 truncate flex items-center">
+            class="cursor-pointer w-[calc(100%-theme('space.20'))] h-full text-xs leading-8 px-2 truncate flex items-center">
             <img
                 class="w-4 h-4 mr-2"
                 src="/logo-xs.png">
@@ -33,14 +33,14 @@
             class="w-20">
             <button
                 type="button"
-                class="h-8 w-8 mr-2"
+                class="h-8 w-10 hover:bg-slate-700"
                 @click="minElectron">
                 <i
                     class="mdi mdi-minus"></i>
             </button>
             <button
                 type="button"
-                class="h-8 w-8"
+                class="h-8 w-10 hover:bg-red-600 hover:text-white"
                 @click="closeElectron">
                 <i
                     class="mdi mdi-close"></i>
@@ -67,15 +67,17 @@
 	<aside
 		class="
 			w-2/3
-			h-full
-			absolute top-0 left-0 z-30
+			absolute left-0 z-30
             transition-all duration-100
 			bg-slate-50
 		"
 		:class="[
 			activeSidebar
 				? 'translate-x-0'
-				: '-translate-x-full'
+				: '-translate-x-full',
+            platform === 'app'
+                ? `h-[calc(100%-theme('space.8'))] top-8`
+                : `h-full top-0`
 		]">
 
         <router-link
@@ -239,9 +241,14 @@
                 cursor-pointer
                 block
                 backdrop-blur bg-slate-900/10
-                absolute top-0 left-0 z-20
-                w-full h-full
-            "/>
+                absolute left-0 z-20
+                w-full
+            "
+            :class="[
+                platform === 'app'
+                    ? `h-[calc(100%-theme('space.8'))] top-8`
+                    : `h-full top-0`
+            ]"/>
     </transition>
 	
 

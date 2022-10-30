@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import NProgress from 'nprogress';
 
 import guest from '~/middlewares/guest.js';
 import auth from '~/middlewares/auth.js';
@@ -54,15 +53,6 @@ const routes = [
 let router = createRouter({
 	history: createWebHistory(),
 	routes,
-});
-
-router.beforeEach((to, from, next) => {
-	NProgress.start();
-	next();
-});
-
-router.afterEach(() => {
-	NProgress.done();
 });
 
 export default router;

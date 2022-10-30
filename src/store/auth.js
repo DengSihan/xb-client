@@ -56,5 +56,8 @@ export const useAuth = defineStore('auth', {
 			this._store = {};
 			Cookie.remove('token');
 		},
+		updateSettings(settings) {
+			this._store.settings = settings;
+		},
 	},
 });

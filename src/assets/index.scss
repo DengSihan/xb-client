@@ -2,19 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-@import 'nprogress/nprogress.css';
-@import 'library.scss';
-
 html {
-	@apply flex items-center h-screen bg-transparent rounded overflow-hidden;
+	@apply flex items-center h-screen bg-transparent overflow-hidden;
 }
 
 body {
-	@apply h-[600px] w-[420px] shadow-lg m-auto bg-slate-100 rounded; 
+	@apply h-[600px] w-[420px] shadow-lg m-auto bg-slate-100; 
 }
 
 #app {
-	@apply relative h-full overflow-hidden rounded bg-white;
+	@apply relative h-full overflow-hidden bg-white;
 }
 
 #electron-header-drag {
