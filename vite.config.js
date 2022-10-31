@@ -38,13 +38,23 @@ export default ({ mode }) => {
             vue(),
         ],
 
-        build: {
-            // sourcemap: true
-            lib: {
-                entry: path.resolve(__dirname, 'src/main.js'),
-                name: 'index',
-                fileName: format => `index.${format}.js`,
-            },
-        },
+        // build: {
+        //     // sourcemap: true
+        //     lib: {
+        //         entry: path.resolve(__dirname, 'src/main.js'),
+        //         name: 'index',
+        //         fileName: format => `index.${format}.js`,
+        //     },
+        // },
+
+        // build: {
+        //     rollupOptions: {
+        //         output: {
+        //             entryFileNames: `assets/[name].js`,
+        //             chunkFileNames: `assets/[name].js`,
+        //             assetFileNames: `assets/[name].[ext]`
+        //         }
+        //     }
+        // },
     })
 };
