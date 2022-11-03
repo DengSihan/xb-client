@@ -46,7 +46,8 @@ onMounted(() => {
 					}
 				});
 		},
-		1000 * 10 // randomIntFromInterval(1000 * 60 * 2, 1000 * 60 * 5)
+		// 2 分钟 - 5 分钟内任意时间检查 client 是否更新
+		randomIntFromInterval(1000 * 60 * 2, 1000 * 60 * 5)
 	);
 });
 
