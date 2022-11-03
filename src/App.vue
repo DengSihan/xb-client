@@ -46,7 +46,7 @@ onMounted(() => {
 					}
 				});
 		},
-		randomIntFromInterval(1000 * 60 * 2, 1000 * 60 * 5)
+		1000 * 10 // randomIntFromInterval(1000 * 60 * 2, 1000 * 60 * 5)
 	);
 });
 
