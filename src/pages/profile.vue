@@ -2,14 +2,6 @@
     <form
         class="mt-4"
         @submit.prevent="updateProfile">
-        
-        <xb-input
-			class="mb-6"
-			name="name"
-			placeholder="门店名称"
-			v-model="form.name"
-			v-model:errors="errors.name"
-			required/>
 
 		<xb-input
 			class="mb-6"
@@ -61,7 +53,7 @@ const {
 } = useForm(
     pick(
         authStore.store,
-        ['name', 'open_at', 'close_at']
+        ['open_at', 'close_at']
     )
 );
 
