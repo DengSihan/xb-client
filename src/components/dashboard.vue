@@ -289,7 +289,7 @@
             <img
                 class="w-4 h-4 mr-2"
                 src="/logo-xs.png">
-            广播云 Copyright © {{ year }} 重庆相对科技有限公司 {{ version }}
+            广播云 Copyright © {{ year }} 重庆相对科技有限公司 v{{ version }}
         </p>
     </footer>
 
