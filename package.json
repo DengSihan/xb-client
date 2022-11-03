@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "last_updated_at": "__LAST_UPDATED_AT__",
     "scripts": {
         "dev": "vite",
         "build": "vite build"
