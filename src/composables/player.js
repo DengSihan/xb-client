@@ -270,3 +270,19 @@ export const useStatus = (isPlayingFixedAudios) => {
         updateStatus,
     };
 }
+
+export const useHistory = () => {
+
+    const timeCurrentAudioHasBeenPlayed = ref(0);
+
+    const storeHistory = (audio) => {
+        axios.post(`/histories`, {
+            audio_id: audio.id, 
+        });
+    }
+
+    return {
+        timeCurrentAudioHasBeenPlayed,
+        storeHistory
+    };
+}

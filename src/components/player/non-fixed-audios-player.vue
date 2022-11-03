@@ -16,7 +16,7 @@
 <script setup>
 
 import { onMounted, shallowRef, nextTick, ref, watch, computed, watchPostEffect } from 'vue';
-import { useNonFixedAudios } from '~/composables/player.js';
+import { useNonFixedAudios, useHistory } from '~/composables/player.js';
 import { useSettings } from '~/store/settings.js';
 
 const props = defineProps({
@@ -48,6 +48,13 @@ const emits = defineEmits([
     'update:isPause',
     'update:isPauseByUser',
 ]);
+
+let timeCurrentAudioHasBeenPlayedCounter = null;
+const {
+    // 音频实际被播放的时间
+    timeCurrentAudioHasBeenPlayed,
+    storeHistory
+} = useHistory();
 
 const playlist = shallowRef([]),
     audio = shallowRef({}),
@@ -98,6 +105,20 @@ const pause = () => {
 };
 
 const ended = () => {
+
+    if (timeCurrentAudioHasBeenPlayedCounter) {
+        clearInterval(timeCurrentAudioHasBeenPlayedCounter);
+        
+        if (
+            audio.value.category === 3
+            && (audio.value.duration - timeCurrentAudioHasBeenPlayed.value) < 3
+        ) {
+            storeHistory(audio.value);
+        }
+
+        timeCurrentAudioHasBeenPlayed.value = 0;
+    }
+
     if (currentPlayIndex.value === playlist.value.length - 1) {
         playlist.value = getPlaylist();
         audio.value = playlist.value[0];
@@ -124,11 +145,22 @@ const changeProgressManually = value => {
 
 // 由系统暂停，而非点击页面中的暂停按钮：比如点击 ubuntu 通知栏中的暂停
 const pauseBySystem = () => {
+
+    if (timeCurrentAudioHasBeenPlayedCounter) {
+        clearInterval(timeCurrentAudioHasBeenPlayedCounter);
+    }
+
     if (!props.isPause) {
         emits('update:isPause', true);
     }
 }
 const playBySystem = () => {
+
+    timeCurrentAudioHasBeenPlayed.value = timeCurrentAudioHasBeenPlayed.value ?? 0;
+    timeCurrentAudioHasBeenPlayedCounter = setInterval(() => {
+        timeCurrentAudioHasBeenPlayed.value++;
+    }, 1000);
+
     if (props.isPause) {
         emits('update:isPause', false);
     }
