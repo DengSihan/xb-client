@@ -209,6 +209,27 @@
                         设置
                     </a>
                 </router-link>
+                <router-link
+                    :to="{
+                        name: 'debug'
+                    }"
+                    custom
+                    v-slot="{ isActive, href, navigate, route }">
+                    <a
+                        class="block p-3 mb-2 rounded"
+                        :href="href"
+                        :class="[
+                            (isActive || $route.path.startsWith(route.fullPath) )
+                                ? 'bg-slate-200 text-slate-900'
+                                : 'bg-slate-50 hover:bg-slate-200 text-slate-700'
+                        ]"
+                        @click.prevent="nav(navigate)"
+                        v-wave>
+                        <i
+                            class="mdi mdi-information mr-2"></i>
+                        调试信息
+                    </a>
+                </router-link>
             </template>
 
         </nav>

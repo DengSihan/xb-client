@@ -20,7 +20,7 @@ import Dashboard from '~/components/dashboard.vue';
 import { useMeta } from 'vue-meta';
 import { onMounted, onBeforeUnmount } from 'vue';
 import { randomIntFromInterval } from '~/utils/helpers.js';
-import axios from 'axios';
+import axios from '~/plugins/axios.js';
 import { last_updated_at } from '../package.json';
 import { notify } from '@kyvg/vue3-notification';
 

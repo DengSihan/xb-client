@@ -43,6 +43,12 @@ const routes = [
         beforeEnter: auth,
     },
     {
+        path: '/debug',
+        name: 'debug',
+        component: () => import('~/pages/debug.vue'),
+        beforeEnter: auth,
+    },
+    {
         path: '/logout',
         name: 'logout',
         component: () => import('~/pages/logout.vue'),
