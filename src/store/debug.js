@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import dayjs from 'dayjs';
 
 export const useDebug = defineStore('debug', {
     state: () => {
@@ -6,6 +7,7 @@ export const useDebug = defineStore('debug', {
             _info: {
                 last_response_time: null,
                 last_version_check_time: null,
+                last_login_time: null,
             }
         }
     },

@@ -11,6 +11,13 @@
         </p>
         <h1
             class="my-4 font-bold">
+            本次软件登录时间
+        </h1>
+        <p>
+            {{ debugStore.info.last_login_time }}
+        </p>
+        <h1
+            class="my-4 font-bold">
             上次版本检查时间
         </h1>
         <p>

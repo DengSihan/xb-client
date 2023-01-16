@@ -318,19 +318,31 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useAuth } from '~/store/auth.js';
 import { version } from '../../package.json';
 import { usePlatform } from '~/utils/platform.js';
 import { useActiveMeta } from 'vue-meta';
+import { useDebug } from '~/store/debug.js';
 import Player from '~/components/player/index.vue';
+import dayjs from 'dayjs';
 
 const metadata = useActiveMeta();
 
 const auth = useAuth();
 const platform = usePlatform();
+const debugStore = useDebug();
 
 const authed = computed(() => Object.keys(auth.store).length > 0);
+
+watch(authed, (value) => {
+    if (value) {
+        debugStore.update({
+            last_login_time: dayjs().format('YYYY-MM-DD HH:mm:ss')
+        })
+    }
+});
+
 
 const activeSidebar = ref(false);
 
