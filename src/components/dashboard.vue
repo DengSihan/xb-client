@@ -260,10 +260,10 @@
             </router-link>
         </nav>
 
-        <footer
+        <!-- <footer
             class="h-12 text-xs text-slate-600 flex items-center justify-center px-4">
             Copyright © {{ year }} 重庆相对科技有限公司
-        </footer>
+        </footer> -->
 
 	</aside>
 
@@ -310,7 +310,8 @@
             <img
                 class="w-4 h-4 mr-2"
                 src="/logo-xs.png">
-            广播云 Copyright © {{ year }} 重庆相对科技有限公司 v{{ version }}
+            广播云 Copyright © {{ year }}
+            <!-- 重庆相对科技有限公司 v{{ version }} -->
         </p>
     </footer>
 
