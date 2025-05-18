@@ -1,4 +1,4 @@
-import { ref, shallowRef, computed, onBeforeMount, onBeforeUnmount, watchEffect } from 'vue';
+import { ref, shallowRef, computed, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useAuth } from '~/store/auth.js';
 import { getCurrentUnixtime, getUnixtimeFromDatetime, formatSeconds } from '~/utils/time.js';
 import { randomIntFromInterval } from '~/utils/helpers.js';
@@ -100,35 +100,27 @@ export const useNonFixedAudios = props => {
         return props.audios.filter(({ category }) => category === 3);
     });
 
-    // 非固定播音的播放逻辑是先算出哪些促销播音需要播放，再根据促销播音的播放间隔，插入随机的的背景音乐
 
-    // 比如 现在是 2022-10-01 10：00：00 日，有:
-    // 固定播音 A，B，C
-    // A 的间隔为 2 首，播放日期区间为 2022-10-01 ~ 2022-10-03 （具体的播放时间是 2022-10-01 00：00：00 至 2022-10-03 23：59：59）
-    // B 的间隔为 1 首，播放日期区间为 2022-09-01 ~ 2022-12-01
-    // C 的间隔为 4 首，播放日期区间为 2022-09-01 ~ 2022-09-30
-    // 背景音乐 甲，乙，丙，丁
+    // // 得到的结果就是 currentPlaylist
+    // // 播放完之后再重新计算
 
-    // 计算的步骤为：
-    // 1. 先得出哪些是当季的促销播音（处于播音日期的促销播音）
-    // [A, B, C] => [A, B]
-    // 2. 再根据每个促销播音的间隔，插入随机的背景音乐
-    // 乙，丙      甲  <---随机从背景音乐中抽取
-    // |           |
-    // ⬇  ⬇ˉˉˉˉˉˉˉˉˉ
-    // [A, B]
-    // 3. 最后得到
-    // [乙，丙，A，甲，B]
+    // // 由于有些门店有可能几天都不关闭软件，所以当季的促销音频不能用 computed 获取，而是实时计算
 
-    // 得到的结果就是 currentPlaylist
-    // 播放完之后再重新计算
-
-    // 由于有些门店有可能几天都不关闭软件，所以当季的促销音频不能用 computed 获取，而是实时计算
+    // 2025-05-18 23:50 
+    // 新逻辑
+    // 1. 先找到所有处于播放日期内的的促销音频 seasonalPromoteAudios
+    // 2. 列出所有的背景音乐 backgroundAudios
+    // 3. 遍历每一首 背景音乐 backgroundAudio[backgroundAudioIndex],
+    //    每首背景音乐都需要遍历所有的 seasonalPromoteAudios
+    //    如果 backgroundAudioIndex 正好是 seasonalPromoteAudios[seasonalPromoteAudiosIndex] 的 interval 的倍数
+    //    那么就插入到 backgroundAudio[backgroundAudioIndex] 的后面
+    // 4. 最后得到 currentPlaylist
 
     const getPlaylist = () => {
         
         let currentUnixtime = getCurrentUnixtime();
         
+        // 1. 先找到所有处于播放日期内的的促销音频 seasonalPromoteAudios
         // 处于播放日期内的的促销音频
         let seasonalPromoteAudios = promoteAudios.value.filter(({
             promote_start_date,
@@ -167,18 +159,24 @@ export const useNonFixedAudios = props => {
 
         let result = [];
 
-        seasonalPromoteAudios.forEach(audio => {
-            result = [
-                ...result,
-                ...backgroundAudios.value.randomExpand(audio.interval).shuffle().slice(0, audio.interval),
-                audio,
-            ];
+        // 2. 列出所有的背景音乐 backgroundAudios
+        let shuffledBackgroundAudios = [...backgroundAudios.value.shuffle()];
+
+        // 3. 遍历每一首 背景音乐 backgroundAudio[backgroundAudioIndex],
+        // 注意：backgroundAudioIndex 是从 0 开始的
+        shuffledBackgroundAudios.forEach((backgroundAudio, backgroundAudioIndex) => {
+            result.push(backgroundAudio);
+
+            // 4. 遍历每一首 促销音频 seasonalPromoteAudio[seasonalPromoteAudiosIndex]
+            seasonalPromoteAudios.forEach((seasonalPromoteAudio) => {
+
+                // 5. 如果 backgroundAudioIndex 正好是 seasonalPromoteAudio.interval 的倍数
+                if ((backgroundAudioIndex + 1) % seasonalPromoteAudio.interval === 0) {
+                    // 6. 那么就插入到 backgroundAudio[backgroundAudioIndex] 的后面
+                    result.push(seasonalPromoteAudio);
+                }
+            });
         });
-        
-        // 如果当前没有促销播音，就播背景音乐
-        if (result.length === 0) {
-            result = backgroundAudios.value.shuffle();
-        }
 
         return result;
     };
